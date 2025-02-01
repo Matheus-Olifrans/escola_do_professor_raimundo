@@ -1,70 +1,42 @@
 package com.example.escola.controller;
 
-
 import com.example.escola.model.Aluno;
-import com.example.escola.repository.AlunoRepository;
+import com.example.escola.service.AlunoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/alunos")
+@RequestMapping("/alunos")
 public class AlunoController {
-
     @Autowired
-    private AlunoRepository alunoRepository;
+    private AlunoService alunoService;
 
-    // Listar todos os alunos
     @GetMapping
-    public List<Aluno> listarAlunos() {
-        return alunoRepository.findAll();
+    public ResponseEntity<List<Aluno>> listarTodos() {
+        return ResponseEntity.ok(alunoService.listarTodos());
     }
 
-    // Buscar aluno por ID
-    @GetMapping("/{id}")
-    public ResponseEntity<Aluno> buscarAlunoPorId(@PathVariable Long id) {
-        Optional<Aluno> aluno = alunoRepository.findById(id);
-        if (aluno.isPresent()) {
-            return ResponseEntity.ok(aluno.get());
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    // Criar novo aluno
     @PostMapping
-    public Aluno criarAluno(@RequestBody Aluno aluno) {
-        return alunoRepository.save(aluno);
+    public ResponseEntity<Aluno> salvar(@RequestBody Aluno aluno) {
+        return ResponseEntity.ok(alunoService.salvar(aluno));
     }
 
-    // Atualizar aluno existente
-    @PutMapping("/{id}")
-    public ResponseEntity<Aluno> atualizarAluno(@PathVariable Long id, @RequestBody Aluno alunoAtualizado) {
-        Optional<Aluno> alunoOptional = alunoRepository.findById(id);
-        if (alunoOptional.isPresent()) {
-            Aluno aluno = alunoOptional.get();
-            aluno.setNome(alunoAtualizado.getNome());
-            aluno.setIdade(alunoAtualizado.getIdade());
-            aluno.setEmail(alunoAtualizado.getEmail());
-            alunoRepository.save(aluno);
+    @GetMapping("/{id}")
+    public ResponseEntity<Aluno> buscarPorId(@PathVariable Long id) {
+        Aluno aluno = alunoService.buscarPorId(id);
+        if (aluno != null) {
             return ResponseEntity.ok(aluno);
-        } else {
-            return ResponseEntity.notFound().build();
         }
+        return ResponseEntity.notFound().build();
     }
 
-    // Deletar aluno
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarAluno(@PathVariable Long id) {
-        Optional<Aluno> alunoOptional = alunoRepository.findById(id);
-        if (alunoOptional.isPresent()) {
-            alunoRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        alunoService.deletar(id);
+        return ResponseEntity.noContent().build();
     }
 }
+      
